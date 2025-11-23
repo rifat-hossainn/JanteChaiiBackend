@@ -12,7 +12,7 @@ export const reporterRouter = (connection) => {
     // -----------------------------
     router.post("/register", async (req, res) => {
         try {
-            const { email, password, profilePic } = req.body;
+            const { email, password, profilePic, name } = req.body;
 
             const existingReporter = await Reporter.findOne({ email });
             if (existingReporter)
@@ -24,6 +24,7 @@ export const reporterRouter = (connection) => {
                 email,
                 password, // hash only in model
                 profilePic: profilePic || "",
+                name: name || "",
             });
 
             res
@@ -51,10 +52,12 @@ export const reporterRouter = (connection) => {
                 return res.status(400).json({ message: "Invalid email or password" });
 
             const token = jwt.sign(
-                { id: reporter._id, email: reporter.email, reporterId: reporter.reporterId, role: reporter.role, profilePic: reporter.profilePic },
+                { id: reporter._id, email: reporter.email, reporterId: reporter.reporterId, role: reporter.role, profilePic: reporter.profilePic, name: reporter.name },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES_IN }
             );
+
+
 
             res.json({ message: "Login successful", token });
         } catch (err) {
@@ -98,13 +101,15 @@ export const reporterRouter = (connection) => {
     // -----------------------------
     router.put("/:id", async (req, res) => {
         try {
-            const { email, password, profilePic } = req.body;
-            const updateData = { email };
-
+            const { email, password, profilePic, name, status } = req.body;
+            const updateData = { email, status, profilePic, name };
+            if (status) updateData.status = status;
             if (password) updateData.password = password; // hash will happen in model pre-save
             if (profilePic) updateData.profilePic = profilePic;
-
+            if (name) updateData.name = name;
+            console.log(updateData);
             const updatedReporter = await Reporter.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+            console.log(updatedReporter);
             if (!updatedReporter) return res.status(404).json({ message: "Reporter not found" });
 
             res.json({ message: "Reporter updated successfully", reporter: updatedReporter });
