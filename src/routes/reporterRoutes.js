@@ -103,11 +103,13 @@ export const reporterRouter = (connection) => {
         try {
             const { email, password, profilePic, name, status } = req.body;
             const updateData = { email, status, profilePic, name };
-
+            if (status) updateData.status = status;
             if (password) updateData.password = password; // hash will happen in model pre-save
             if (profilePic) updateData.profilePic = profilePic;
             if (name) updateData.name = name;
+            console.log(updateData);
             const updatedReporter = await Reporter.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+            console.log(updatedReporter);
             if (!updatedReporter) return res.status(404).json({ message: "Reporter not found" });
 
             res.json({ message: "Reporter updated successfully", reporter: updatedReporter });

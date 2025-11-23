@@ -10,6 +10,7 @@ const ReporterSchema = new mongoose.Schema({
     role: { type: String, enum: ["reporter"], default: "reporter" },
     profilePic: { type: String, default: "" }, // optional
     createdAt: { type: Date, default: Date.now },
+    status: { type: String, enum: ["approved", "Pending", "fired"], default: "Pending" },
 });
 
 // 🔹 Pre-save hook to hash password
